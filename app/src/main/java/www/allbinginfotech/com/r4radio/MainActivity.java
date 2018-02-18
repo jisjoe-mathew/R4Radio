@@ -1,8 +1,10 @@
 package www.allbinginfotech.com.r4radio;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +12,8 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +39,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity  {
@@ -74,8 +79,12 @@ public class MainActivity extends Activity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.player);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+       if(isOnline()==true)
+       {
+        //do whatever you want to do
+
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-initControls();
+        initControls();
         // All player buttons
         btnPlay = (ImageButton) findViewById(R.id.btnPlay);
       btnRepeat = (ImageButton) findViewById(R.id.btnRepeat);
@@ -286,6 +295,7 @@ initControls();
      * Receiving song index from playlist view
      * and play the song
      * */
+    }
     }
     @Override
     protected void onActivityResult(int requestCode,
@@ -652,5 +662,32 @@ class Player extends AsyncTask<String, Void, Boolean> {
         {
             e.printStackTrace();
         }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager conMgr = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+
+        if (netInfo == null || !netInfo.isConnected() || !netInfo.isAvailable()) {
+            Toast.makeText(getApplicationContext(), "No Internet connection!", Toast.LENGTH_LONG).show();
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+            alertDialog.setTitle("Info");
+            alertDialog.setMessage("Internet not available, Cross check your internet connectivity and try again!!");
+            alertDialog.setIcon(android.R.drawable.ic_dialog_alert);
+            alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    MainActivity.this.finish();
+
+                }
+            });
+alertDialog.setCancelable(false);
+            alertDialog.show();
+
+        }
+        else {
+            return true;
+        }
+        return false;
     }
 }
